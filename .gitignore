@@ -1492,3 +1492,4 @@ src/console/sgp4/TestSGP4/TestSGP4/TestSGP4.vcxproj
 src/console/sgp4/TestSGP4/TestSGP4/TestSGP4.vcxproj.filters
 src/console/sgp4/passpredict/CMakeLists.txt
 src/console/sgp4/passpredict/passpredict.cc
+src/console/NngServer.cpp
