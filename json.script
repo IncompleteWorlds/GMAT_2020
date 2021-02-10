@@ -1,0 +1,98 @@
+%General Mission Analysis Tool(GMAT) Script
+%Created: 2021-01-31 10:33:04
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft theSat;
+
+GMAT theSat.DateFormat = UTCGregorian;
+GMAT theSat.Epoch = '01 Jan 2020 00:00:00.000';
+GMAT theSat.CoordinateSystem = EarthMJ2000Eq;
+% They are mandatory for TLE
+GMAT theSat.EphemerisName = '../TLE/Active_Nov-09-2019.txt';
+GMAT theSat.Id = 'DEIMOS-1';
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel DefaultProp_ForceModel;
+GMAT DefaultProp_ForceModel.CentralBody = Earth;
+GMAT DefaultProp_ForceModel.PrimaryBodies = {Earth};
+GMAT DefaultProp_ForceModel.Drag = None;
+GMAT DefaultProp_ForceModel.SRP = Off;
+GMAT DefaultProp_ForceModel.RelativisticCorrection = Off;
+GMAT DefaultProp_ForceModel.ErrorControl = RSSStep;
+GMAT DefaultProp_ForceModel.GravityField.Earth.Degree = 4;
+GMAT DefaultProp_ForceModel.GravityField.Earth.Order = 4;
+GMAT DefaultProp_ForceModel.GravityField.Earth.StmLimit = 100;
+GMAT DefaultProp_ForceModel.GravityField.Earth.PotentialFile = 'JGM2.cof';
+GMAT DefaultProp_ForceModel.GravityField.Earth.TideModel = 'None';
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+% Create Propagator DefaultProp;
+% GMAT DefaultProp.Type = STK;
+% GMAT DefaultProp.StepSize = 60;
+% GMAT DefaultProp.CentralBody = Earth;
+% GMAT DefaultProp.EpochFormat = 'UTCGregorian';
+% GMAT DefaultProp.StartEpoch = 'FromSpacecraft';
+% 
+Create Propagator TleProp;
+GMAT TleProp.Type = TLE;
+GMAT TleProp.InitialStepSize = 60;
+
+
+%----------------------------------------
+%---------- Subscribers
+%----------------------------------------
+
+% Create EphemerisFile EphemerisFile1;
+% GMAT EphemerisFile1.UpperLeft = [ 0 0 ];
+% GMAT EphemerisFile1.Size = [ 0 0 ];
+% GMAT EphemerisFile1.RelativeZOrder = 0;
+% GMAT EphemerisFile1.Maximized = false;
+% GMAT EphemerisFile1.Spacecraft = theSat;
+% GMAT EphemerisFile1.Filename = 'EphemerisFile1.e';
+% GMAT EphemerisFile1.FileFormat = STK-TimePosVel;
+% GMAT EphemerisFile1.EpochFormat = UTCGregorian;
+% GMAT EphemerisFile1.InitialEpoch = InitialSpacecraftEpoch;
+% GMAT EphemerisFile1.FinalEpoch = FinalSpacecraftEpoch;
+% GMAT EphemerisFile1.StepSize = IntegratorSteps;
+% GMAT EphemerisFile1.Interpolator = Lagrange;
+% GMAT EphemerisFile1.InterpolationOrder = 7;
+% GMAT EphemerisFile1.CoordinateSystem = EarthMJ2000Eq;
+% GMAT EphemerisFile1.OutputFormat = LittleEndian;
+% GMAT EphemerisFile1.WriteEphemeris = true;
+
+Create EphemerisFile EphemerisFile1;
+GMAT EphemerisFile1.UpperLeft = [ 0 0 ];
+GMAT EphemerisFile1.Size = [ 0 0 ];
+GMAT EphemerisFile1.RelativeZOrder = 0;
+GMAT EphemerisFile1.Maximized = false;
+GMAT EphemerisFile1.Spacecraft = theSat;
+GMAT EphemerisFile1.Filename = 'EphemerisFile2.json';
+GMAT EphemerisFile1.FileFormat = JSON;
+GMAT EphemerisFile1.EpochFormat = UTCGregorian;
+GMAT EphemerisFile1.InitialEpoch = InitialSpacecraftEpoch;
+GMAT EphemerisFile1.FinalEpoch = FinalSpacecraftEpoch;
+GMAT EphemerisFile1.StepSize = IntegratorSteps;
+GMAT EphemerisFile1.Interpolator = Lagrange;
+GMAT EphemerisFile1.InterpolationOrder = 7;
+GMAT EphemerisFile1.CoordinateSystem = EarthMJ2000Eq;
+GMAT EphemerisFile1.OutputFormat = LittleEndian;
+GMAT EphemerisFile1.IncludeCovariance = None;
+GMAT EphemerisFile1.WriteEphemeris = true;
+GMAT EphemerisFile1.DistanceUnit = Meters;
+GMAT EphemerisFile1.IncludeEventBoundaries = true;
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+BeginMissionSequence;
+Propagate TleProp(theSat) {theSat.ElapsedSecs = 12000.0};

@@ -1,0 +1,141 @@
+%General Mission Analysis Tool(GMAT) Script
+%Created: 2021-01-31 10:24:28
+
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+%
+%   Spacecraft
+%
+
+Create Spacecraft STKSat;
+
+GMAT STKSat.DateFormat = UTCGregorian;
+GMAT STKSat.Epoch = '01 Jan 2000 12:00:00.000';
+GMAT STKSat.CoordinateSystem = EarthMJ2000Eq;
+GMAT STKSat.DisplayStateType = Cartesian;
+GMAT STKSat.X = 7100;
+GMAT STKSat.Y = 0;
+GMAT STKSat.Z = 1300;
+GMAT STKSat.VX = 0;
+GMAT STKSat.VY = 7.35;
+GMAT STKSat.VZ = 1;
+GMAT STKSat.DryMass = 850;
+GMAT STKSat.Cd = 2.2;
+GMAT STKSat.Cr = 1.8;
+GMAT STKSat.DragArea = 15;
+GMAT STKSat.SRPArea = 1;
+GMAT STKSat.SPADDragScaleFactor = 1;
+GMAT STKSat.SPADSRPScaleFactor = 1;
+GMAT STKSat.EphemerisName = '../data/vehicle/ephem/stk/SampleSTKEphem.e';
+GMAT STKSat.NAIFId = -10002001;
+GMAT STKSat.NAIFIdReferenceFrame = -9002001;
+GMAT STKSat.OrbitColor = Red;
+GMAT STKSat.TargetColor = Teal;
+GMAT STKSat.OrbitErrorCovariance = [ 1e+70 0 0 0 0 0 ; 0 1e+70 0 0 0 0 ; 0 0 1e+70 0 0 0 ; 0 0 0 1e+70 0 0 ; 0 0 0 0 1e+70 0 ; 0 0 0 0 0 1e+70 ];
+GMAT STKSat.CdSigma = 1e+70;
+GMAT STKSat.CrSigma = 1e+70;
+GMAT STKSat.Id = 'SatId';
+GMAT STKSat.Attitude = CoordinateSystemFixed;
+GMAT STKSat.SPADSRPInterpolationMethod = Bilinear;
+GMAT STKSat.SPADSRPScaleFactorSigma = 1e+70;
+GMAT STKSat.SPADDragInterpolationMethod = Bilinear;
+GMAT STKSat.SPADDragScaleFactorSigma = 1e+70;
+GMAT STKSat.ModelFile = 'aura.3ds';
+GMAT STKSat.ModelOffsetX = 0;
+GMAT STKSat.ModelOffsetY = 0;
+GMAT STKSat.ModelOffsetZ = 0;
+GMAT STKSat.ModelRotationX = 0;
+GMAT STKSat.ModelRotationY = 0;
+GMAT STKSat.ModelRotationZ = 0;
+GMAT STKSat.ModelScale = 1;
+GMAT STKSat.AttitudeDisplayStateType = 'Quaternion';
+GMAT STKSat.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT STKSat.AttitudeCoordinateSystem = EarthMJ2000Eq;
+GMAT STKSat.EulerAngleSequence = '321';
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+%
+%   Propagator
+%
+
+Create Propagator STKProp;
+
+GMAT STKProp.Type = STK;
+GMAT STKProp.StepSize = 60;
+GMAT STKProp.CentralBody = Earth;
+GMAT STKProp.EpochFormat = 'A1ModJulian';
+GMAT STKProp.StartEpoch = 'FromSpacecraft';
+
+%----------------------------------------
+%---------- Subscribers
+%----------------------------------------
+
+%
+%   Output 
+%
+
+Create OrbitView OrbitView1;
+GMAT OrbitView1.SolverIterations = Current;
+GMAT OrbitView1.UpperLeft = [ 0 0 ];
+GMAT OrbitView1.Size = [ 0 0 ];
+GMAT OrbitView1.RelativeZOrder = 0;
+GMAT OrbitView1.Maximized = false;
+GMAT OrbitView1.Add = {STKSat, Earth};
+GMAT OrbitView1.CoordinateSystem = EarthMJ2000Eq;
+GMAT OrbitView1.DrawObject = [ true true ];
+GMAT OrbitView1.DataCollectFrequency = 1;
+GMAT OrbitView1.UpdatePlotFrequency = 50;
+GMAT OrbitView1.NumPointsToRedraw = 0;
+GMAT OrbitView1.ShowPlot = true;
+GMAT OrbitView1.MaxPlotPoints = 20000;
+GMAT OrbitView1.ShowLabels = true;
+GMAT OrbitView1.ViewPointReference = Earth;
+GMAT OrbitView1.ViewPointVector = [ 0 0 30000 ];
+GMAT OrbitView1.ViewDirection = Earth;
+GMAT OrbitView1.ViewScaleFactor = 1;
+GMAT OrbitView1.ViewUpCoordinateSystem = EarthMJ2000Eq;
+GMAT OrbitView1.ViewUpAxis = Z;
+GMAT OrbitView1.EclipticPlane = Off;
+GMAT OrbitView1.XYPlane = On;
+GMAT OrbitView1.WireFrame = Off;
+GMAT OrbitView1.Axes = On;
+GMAT OrbitView1.Grid = Off;
+GMAT OrbitView1.SunLine = Off;
+GMAT OrbitView1.UseInitialView = On;
+GMAT OrbitView1.StarCount = 7000;
+GMAT OrbitView1.EnableStars = On;
+GMAT OrbitView1.EnableConstellations = On;
+
+%----------------------------------------
+%---------- Arrays, Variables, Strings
+%----------------------------------------
+
+Create Array initialState[6,1] finalState[6,1];
+
+%
+% Miscellaneous variables.
+%
+
+Create String initialEpoch finalEpoch;
+
+
+%
+%   Mission Sequence
+%
+
+BeginMissionSequence;
+
+GMAT [initialEpoch, initialState, finalEpoch, finalState] = GetEphemStates('STK', STKSat, 'UTCGregorian', EarthMJ2000Eq);
+
+GMAT STKSat.Epoch = initialEpoch;
+
+While STKSat.ElapsedDays <= 1
+   
+   Propagate STKProp(STKSat);
+
+EndWhile;
